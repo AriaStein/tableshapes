@@ -2,8 +2,8 @@
 # Aria Stein July 2023 - modified from the example CMAKE file from JUCE
 
 set(ENV{PLUGIN_NAME} Tableshapes)
-set(ENV{VERSION_NUMBER} 0x000000) # 0xVVMMPP (VV = version, MM = modification, PP = patch)
-set(ENV{VERSION_STRING} 0.0.0) # VV.MM.PP
+set(ENV{VERSION_NUMBER} 0x000001) # 0xVVMMPP (VV = version, MM = modification, PP = patch)
+set(ENV{VERSION_STRING} 0.0.1) # VV.MM.PP
 set(ENV{COMPANY_NAME} Aria_Stein)
 set(ENV{MANUFACTURER_ID} ArSt) # A four-character manufacturer id with at least one upper-case character
 set(ENV{PLUGIN_CODE} Tbsh) # A unique four-character plugin id with exactly one upper-case character
