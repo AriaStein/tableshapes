@@ -1,12 +1,12 @@
-# Example Plugin CMAKE file
-# Nathan Blair May 2023 - modified from the example CMAKE file from JUCE
+# Plugin CMAKE file
+# Aria Stein July 2023 - modified from the example CMAKE file from JUCE
 
-set(ENV{PLUGIN_NAME} EXAMPLE)
-set(ENV{VERSION_NUMBER} 0x000001) # 0xVVMMPP (VV = version, MM = modification, PP = patch)
-set(ENV{VERSION_STRING} 0.0.1) # VV.MM.PP
-set(ENV{COMPANY_NAME} YOUR_COMPANY_NAME)
-set(ENV{MANUFACTURER_ID} MFID) # A four-character manufacturer id with at least one upper-case character
-set(ENV{PLUGIN_CODE} Plid) # A unique four-character plugin id with exactly one upper-case character
+set(ENV{PLUGIN_NAME} Tableshapes)
+set(ENV{VERSION_NUMBER} 0x000000) # 0xVVMMPP (VV = version, MM = modification, PP = patch)
+set(ENV{VERSION_STRING} 0.0.0) # VV.MM.PP
+set(ENV{COMPANY_NAME} Aria_Stein)
+set(ENV{MANUFACTURER_ID} ArSt) # A four-character manufacturer id with at least one upper-case character
+set(ENV{PLUGIN_CODE} Tbsh) # A unique four-character plugin id with exactly one upper-case character
 
 
 #--------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ project($ENV{PLUGIN_NAME} VERSION $ENV{VERSION_STRING})
 
 #--------------------------------------------------------------------------------
 # Include JUCE (as a subdirectory)
-# It is recommended to have a separate JUCE subdirectory for every project you create. 
+# It is recommended to have a separate JUCE subdirectory for every project you create.
 # This prevents issues that might arise from different versions of JUCE being used in different projects.
 #--------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ target_compile_definitions($ENV{PLUGIN_NAME}
 # Reference in code: BinaryData::YOUR_IMAGE_HERE_png, BinaryData::YOUR_IMAGE_HERE_png_Size
 #--------------------------------------------------------------------------------
 
-# juce_add_binary_data(AudioPluginData SOURCES 
+# juce_add_binary_data(AudioPluginData SOURCES
 #                         resources/YOUR_IMAGE_HERE.png
 # )
 
@@ -143,5 +143,3 @@ target_link_libraries($ENV{PLUGIN_NAME}
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
-
-
