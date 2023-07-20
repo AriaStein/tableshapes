@@ -36,6 +36,16 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         shaping_wave->setSample(0, i, .9);
         shaping_wave->setSample(0, (MAX_WAVE_SIZE - i) - 1, -.9);
     }
+    wavetable = std::make_unique<juce::AudioBuffer<double>>(1, MAX_WAVE_SIZE * MAX_WAVE_AMOUNT);
+    for (int i = 0; i < MAX_WAVE_AMOUNT; i++) {     // Initialize wavetable to ramps
+        for (int j = 0; j < MAX_WAVE_SIZE; i++) {
+        double new_sample = (((MAX_WAVE_SIZE - 1) / j) * 2.0) - 1.0;
+        wavetable->setSample(1, (i * MAX_WAVE_SIZE) + j, new_sample);
+        }
+    }
+    wavetable_index = std::make_unique<double>;
+    *wavetable_index = 0.0;
+
 }
 
 void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
@@ -70,9 +80,18 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             wave_index *= ((double)MAX_WAVE_SIZE - 1.0); //turn sample into wave index
             int higher_sample = ceil(wave_index);
             int lower_sample = floor(wave_index);
+            int higher_wave = ceil(*wavetable_index);
+            int lower_wave = floor(*wavetable_index);
             double higher_scale = fmod(wave_index, 1.0);
             double lower_scale = 1.0 - higher_scale;
-            double out_sample = (shaping_wave->getSample(0, higher_sample) * higher_scale) + (shaping_wave->getSample(0, lower_sample) * lower_scale);
+            double higher_wave_scale = fmod(*wavetable_index, 1.0);
+            double lower_wave_scale = 1.0 - higher_wave_scale;
+            double higher_wave_sample = (wavetable->getSample(0, (higher_wave * MAX_WAVE_SIZE) + higher_sample)
+                                         * higher_scale) + (wavetable->getSample(0, (higher_wave * MAX_WAVE_SIZE) + lower_sample) * lower_scale);
+            double lower_wave_sample = (wavetable->getSample(0, (lower_wave * MAX_WAVE_SIZE) + higher_sample)
+                                         * higher_scale) + (wavetable->getSample(0, (lower_wave * MAX_WAVE_SIZE) + lower_sample) * lower_scale);
+            double out_sample = (higher_wave_sample * higher_wave_scale) + (lower_wave_sample * lower_wave_scale);
+//            double out_sample = (shaping_wave->getSample(0, higher_sample) * higher_scale) + (shaping_wave->getSample(0, lower_sample) * lower_scale);
             buffer.setSample(i, j, out_sample);
         }
     }
