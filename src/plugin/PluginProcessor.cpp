@@ -5,6 +5,7 @@
 #include "PluginEditor.h"
 #include "../parameters/StateManager.h"
 #include "../audio/Gain.h"
+#include <cmath>
 #define MAX_WAVE_SIZE 2048
 #define MAX_WAVE_AMOUNT 256
 
@@ -30,6 +31,11 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     gain = std::make_unique<Gain>(float(sampleRate), samplesPerBlock, getTotalNumOutputChannels(), PARAMETER_DEFAULTS[PARAM::GAIN] / 100.0f);
     shaping_wave = std::make_unique<juce::AudioBuffer<double>>(1, MAX_WAVE_SIZE);
     shaping_wave->clear();
+    //Test square wave for waveshaping, remove once loading is implemented
+    for (int i = 0; i < MAX_WAVE_SIZE / 2; i++) {
+        shaping_wave->setSample(0, i, .9);
+        shaping_wave->setSample(0, (MAX_WAVE_SIZE - i) - 1, -.9);
+    }
 }
 
 void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
@@ -52,12 +58,26 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // see: https://docs.juce.com/master/classAudioBuffer.html
     //--------------------------------------------------------------------------------
 
-    in_gain->setGain(requested_gain);
+    in_gain->setGain(requested_in_gain);
     in_gain->process(buffer);
 
     //Do waveshaping stuff here
+    for (int i = 0; i < buffer.getNumChannels(); i++) {
+        for (int j = 0; j < buffer.getNumSamples(); j++) {
+            double in_sample = buffer.getSample(i, j);
+            double wave_index = in_sample + 1.0;
+            wave_index /= 2.0;
+            wave_index *= ((double)MAX_WAVE_SIZE - 1.0); //turn sample into wave index
+            int higher_sample = ceil(wave_index);
+            int lower_sample = floor(wave_index);
+            double higher_scale = fmod(wave_index, 1.0);
+            double lower_scale = 1.0 - higher_scale;
+            double out_sample = (shaping_wave->getSample(0, higher_sample) * higher_scale) + (shaping_wave->getSample(0, lower_sample) * lower_scale);
+            buffer.setSample(i, j, out_sample);
+        }
+    }
 
-    gain->setGain(requested_in_gain);
+    gain->setGain(requested_gain);
     gain->process(buffer);
     //--------------------------------------------------------------------------------
     // you can use midiMessages to read midi if you need.
