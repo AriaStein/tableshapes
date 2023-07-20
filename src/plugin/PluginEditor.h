@@ -30,12 +30,12 @@ public:
 
     //==============================================================================
     void paint (juce::Graphics&) override;
-    
+
     void resized() override;
     void timerCallback() override;
 
 private:
-    
+
     const size_t TIMER_HZ = 60;
     const size_t UNDO_HZ = 1;
     const int W = 900; // width
@@ -45,19 +45,22 @@ private:
     // access the processor object that created it.
     PluginProcessor& processorRef;
 
-    // a convenient pointer to the state manager 
+    // a convenient pointer to the state manager
     // which is owned by the processor
     StateManager* state;
 
     // A single slider
     std::unique_ptr<ParameterSlider> gain_slider;
 
+    // Another Slider
+    std::unique_ptr<ParameterSlider> in_gain_slider;
+
     //==============================================================================
     // UNDO REDO
     // to use, attach buttons to state->undo() / state->redo()
     //==============================================================================
     juce::UndoManager* undo_manager;
-    
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

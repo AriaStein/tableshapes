@@ -1,9 +1,12 @@
-// Nathan Blair June 2023
+// Aria Stein July 2023
+// Uses template code from Nathan Blair June 2023
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "../parameters/StateManager.h"
 #include "../audio/Gain.h"
+#define MAX_WAVE_SIZE 2048
+#define MAX_WAVE_AMOUNT 256
 
 //==============================================================================
 PluginProcessor::PluginProcessor()
@@ -23,7 +26,10 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Use this to allocate up any resources you need, and to reset any
     // variables that depend on sample rate or block size
 
+    in_gain = std::make_unique<Gain>(float(sampleRate), samplesPerBlock, getTotalNumOutputChannels(), PARAMETER_DEFAULTS[PARAM::GAIN] / 100.0f);
     gain = std::make_unique<Gain>(float(sampleRate), samplesPerBlock, getTotalNumOutputChannels(), PARAMETER_DEFAULTS[PARAM::GAIN] / 100.0f);
+    shaping_wave = std::make_unique<juce::AudioBuffer<double>>(1, MAX_WAVE_SIZE);
+    shaping_wave->clear();
 }
 
 void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
@@ -37,6 +43,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // so we normalize it to 0 to 1
     //--------------------------------------------------------------------------------
     auto requested_gain = state->param_value(PARAM::GAIN) / 100.0f;
+    auto requested_in_gain = state->param_value(PARAM::INGAIN) / 100.0f;
 
     //--------------------------------------------------------------------------------
     // process samples below. use the buffer argument that is passed in.
@@ -44,11 +51,16 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // for a synth, buffer is filled with zeros, and you should fill it with output samples
     // see: https://docs.juce.com/master/classAudioBuffer.html
     //--------------------------------------------------------------------------------
-    
-    gain->setGain(requested_gain);
+
+    in_gain->setGain(requested_gain);
+    in_gain->process(buffer);
+
+    //Do waveshaping stuff here
+
+    gain->setGain(requested_in_gain);
     gain->process(buffer);
     //--------------------------------------------------------------------------------
-    // you can use midiMessages to read midi if you need. 
+    // you can use midiMessages to read midi if you need.
     // since we are not using midi yet, we clear the buffer.
     //--------------------------------------------------------------------------------
     midiMessages.clear();
@@ -60,7 +72,7 @@ void PluginProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    
+
     // We will just store our parameter state, for now
     auto plugin_state = state->get_state();
     std::unique_ptr<juce::XmlElement> xml (plugin_state.createXml());

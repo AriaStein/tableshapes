@@ -31,7 +31,9 @@ public:
 
   private:
 
+    std::unique_ptr<Gain> in_gain;
     std::unique_ptr<Gain> gain;
+    std::unique_ptr<juce::AudioBuffer<double>> shaping_wave;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)

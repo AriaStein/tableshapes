@@ -16,13 +16,15 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (PluginProcesso
 
     // add slider BEFORE setting size
     gain_slider = std::make_unique<ParameterSlider>(state, PARAM::GAIN);
+    in_gain_slider = std::make_unique<ParameterSlider>(state, PARAM::INGAIN);
+    addAndMakeVisible(*in_gain_slider);
     addAndMakeVisible(*gain_slider);
 
     // some settings about UI
     setOpaque (true);
     setSize(W, H);
     setColour(0, juce::Colour(0xff00ffa1)); // background color
-    
+
     // resizable window
     setResizable(true, true);
     setResizeLimits((W * 4) / 5, (H * 4) / 5, (W * 3) / 2, (H * 3) / 2);
@@ -34,7 +36,7 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
     // remove any listeners here
 
     // also, if we have a lookAndFeel object we should call:
-    // setLookAndFeel(nullptr); 
+    // setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -48,9 +50,14 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     // set the position of your components here
     int slider_size = proportionOfWidth(0.1f);
-    int slider_x = proportionOfWidth(0.5f) - (slider_size / 2);
+    int slider_x = proportionOfWidth(0.7f) - (slider_size / 2);
     int slider_y = proportionOfHeight(0.5f) - (slider_size / 2);
     gain_slider->setBounds(slider_x, slider_y, slider_size, slider_size);
+
+    slider_x = proportionOfWidth(0.3f) - (slider_size / 2);
+    slider_y = proportionOfHeight(0.5f) - (slider_size / 2);
+    in_gain_slider->setBounds(slider_x, slider_y, slider_size, slider_size);
+
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback() {
@@ -58,6 +65,9 @@ void AudioPluginAudioProcessorEditor::timerCallback() {
     if (state->any_parameter_changed.exchange(false)) {
         if (state->get_parameter_modified(PARAM::GAIN)) {
             gain_slider->repaint();
+        }
+        if (state->get_parameter_modified(PARAM::INGAIN)) {
+            in_gain_slider->repaint();
         }
     }
     state->update_preset_modified();
