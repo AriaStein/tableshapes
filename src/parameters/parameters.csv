@@ -1,3 +1,4 @@
 PARAMETER, MIN, MAX, GRAIN, EXP, DEFAULT, AUTOMATABLE, NAME, SUFFIX, TOOLTIP, TO_STRING_ARR
 INGAIN,0,100,0,1,50,1,Input Gain, %,Input Loudness Parameter,
-GAIN,0,100,0,1,50,1, Output Gain, %,Output Loudness Parameter,
+GAIN,0,100,0,1,50,1,Output Gain, %,Output Loudness Parameter,
+INDEX,0,255,0,1,0,1,Index,,Wavetable Index,

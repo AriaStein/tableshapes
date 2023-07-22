@@ -36,15 +36,14 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         shaping_wave->setSample(0, i, .9);
         shaping_wave->setSample(0, (MAX_WAVE_SIZE - i) - 1, -.9);
     }
+
     wavetable = std::make_unique<juce::AudioBuffer<double>>(1, MAX_WAVE_SIZE * MAX_WAVE_AMOUNT);
     for (int i = 0; i < MAX_WAVE_AMOUNT; i++) {     // Initialize wavetable to ramps
-        for (int j = 0; j < MAX_WAVE_SIZE; i++) {
-        double new_sample = (((MAX_WAVE_SIZE - 1) / j) * 2.0) - 1.0;
-        wavetable->setSample(1, (i * MAX_WAVE_SIZE) + j, new_sample);
+        for (int j = 0; j < MAX_WAVE_SIZE; j++) {
+            double new_sample = ((j / ((double)MAX_WAVE_SIZE - 1.0)) * 2.0) - 1.0;
+            wavetable->setSample(0, (i * MAX_WAVE_SIZE) + j, new_sample);
         }
     }
-    wavetable_index = std::make_unique<double>;
-    *wavetable_index = 0.0;
 
 }
 
@@ -60,7 +59,9 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     //--------------------------------------------------------------------------------
     auto requested_gain = state->param_value(PARAM::GAIN) / 100.0f;
     auto requested_in_gain = state->param_value(PARAM::INGAIN) / 100.0f;
-
+    auto wavetable_index = state->param_value(PARAM::INDEX);
+    if (wavetable_index < 0.0){wavetable_index = 0.0;}
+    if (wavetable_index > 255.0){wavetable_index = 255.0;}
     //--------------------------------------------------------------------------------
     // process samples below. use the buffer argument that is passed in.
     // for an audio effect, buffer is filled with input samples, and you should fill it with output samples
@@ -75,23 +76,27 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (int i = 0; i < buffer.getNumChannels(); i++) {
         for (int j = 0; j < buffer.getNumSamples(); j++) {
             double in_sample = buffer.getSample(i, j);
+            if (in_sample < -1.0) {in_sample = -1.0;}
+            if (in_sample > 1.0) {in_sample = 1.0;}
             double wave_index = in_sample + 1.0;
             wave_index /= 2.0;
-            wave_index *= ((double)MAX_WAVE_SIZE - 1.0); //turn sample into wave index
+            wave_index *= (((double)MAX_WAVE_SIZE) - 1.0); //turn sample into wave index
+
             int higher_sample = ceil(wave_index);
             int lower_sample = floor(wave_index);
-            int higher_wave = ceil(*wavetable_index);
-            int lower_wave = floor(*wavetable_index);
+            int higher_wave = ceil(wavetable_index);
+            int lower_wave = floor(wavetable_index);
+
             double higher_scale = fmod(wave_index, 1.0);
             double lower_scale = 1.0 - higher_scale;
-            double higher_wave_scale = fmod(*wavetable_index, 1.0);
+            double higher_wave_scale = fmod(wavetable_index, 1.0);
             double lower_wave_scale = 1.0 - higher_wave_scale;
+
             double higher_wave_sample = (wavetable->getSample(0, (higher_wave * MAX_WAVE_SIZE) + higher_sample)
                                          * higher_scale) + (wavetable->getSample(0, (higher_wave * MAX_WAVE_SIZE) + lower_sample) * lower_scale);
             double lower_wave_sample = (wavetable->getSample(0, (lower_wave * MAX_WAVE_SIZE) + higher_sample)
                                          * higher_scale) + (wavetable->getSample(0, (lower_wave * MAX_WAVE_SIZE) + lower_sample) * lower_scale);
             double out_sample = (higher_wave_sample * higher_wave_scale) + (lower_wave_sample * lower_wave_scale);
-//            double out_sample = (shaping_wave->getSample(0, higher_sample) * higher_scale) + (shaping_wave->getSample(0, lower_sample) * lower_scale);
             buffer.setSample(i, j, out_sample);
         }
     }
