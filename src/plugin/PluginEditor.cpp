@@ -17,8 +17,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (PluginProcesso
     // add slider BEFORE setting size
     gain_slider = std::make_unique<ParameterSlider>(state, PARAM::GAIN);
     in_gain_slider = std::make_unique<ParameterSlider>(state, PARAM::INGAIN);
+    index_slider = std::make_unique<ParameterSlider>(state, PARAM::INDEX);
     addAndMakeVisible(*in_gain_slider);
     addAndMakeVisible(*gain_slider);
+    addAndMakeVisible(*index_slider);
 
     // some settings about UI
     setOpaque (true);
@@ -50,13 +52,17 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     // set the position of your components here
     int slider_size = proportionOfWidth(0.1f);
-    int slider_x = proportionOfWidth(0.7f) - (slider_size / 2);
-    int slider_y = proportionOfHeight(0.5f) - (slider_size / 2);
+    int slider_x = proportionOfWidth(0.9f) - (slider_size / 2);
+    int slider_y = proportionOfHeight(0.1f) - (slider_size / 2);
     gain_slider->setBounds(slider_x, slider_y, slider_size, slider_size);
 
-    slider_x = proportionOfWidth(0.3f) - (slider_size / 2);
-    slider_y = proportionOfHeight(0.5f) - (slider_size / 2);
+    slider_x = proportionOfWidth(0.1f) - (slider_size / 2);
     in_gain_slider->setBounds(slider_x, slider_y, slider_size, slider_size);
+
+    slider_size = proportionOfWidth(0.2f);
+    slider_x = proportionOfWidth(0.5f) - (slider_size / 2);
+    slider_y = proportionOfHeight(0.5f) - (slider_size / 2);
+    index_slider->setBounds(slider_x, slider_y, slider_size, slider_size);
 
 }
 
@@ -68,6 +74,9 @@ void AudioPluginAudioProcessorEditor::timerCallback() {
         }
         if (state->get_parameter_modified(PARAM::INGAIN)) {
             in_gain_slider->repaint();
+        }
+        if (state->get_parameter_modified(PARAM::INDEX)) {
+            index_slider->repaint();
         }
     }
     state->update_preset_modified();

@@ -19,7 +19,7 @@ static const std::array<juce::String, PARAM::TOTAL_NUMBER_PARAMETERS> PARAMETER_
 static const std::array<juce::NormalisableRange<float>, PARAM::TOTAL_NUMBER_PARAMETERS> PARAMETER_RANGES {
 	juce::NormalisableRange<float>(0.0f, 100.0f, 0.0f, 1.0f),
 	juce::NormalisableRange<float>(0.0f, 100.0f, 0.0f, 1.0f),
-	juce::NormalisableRange<float>(0.0f, 255.0f, 0.0f, 1.0f),
+	juce::NormalisableRange<float>(0.0f, 255.0f, 1.0f, 1.0f),
 };
 static const std::array<float, PARAM::TOTAL_NUMBER_PARAMETERS> PARAMETER_DEFAULTS {
 	50.0f,

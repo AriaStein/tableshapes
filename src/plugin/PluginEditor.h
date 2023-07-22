@@ -49,11 +49,10 @@ private:
     // which is owned by the processor
     StateManager* state;
 
-    // A single slider
+    // Our sliders
     std::unique_ptr<ParameterSlider> gain_slider;
-
-    // Another Slider
     std::unique_ptr<ParameterSlider> in_gain_slider;
+    std::unique_ptr<ParameterSlider> index_slider;
 
     //==============================================================================
     // UNDO REDO
